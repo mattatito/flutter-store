@@ -1,4 +1,4 @@
-# lojaonline
+# Loje Online
 
 A new Flutter application.
 
