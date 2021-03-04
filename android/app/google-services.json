@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "973125890900",
+    "firebase_url": "https://loja-flutter-5bbf7.firebaseio.com",
+    "project_id": "loja-flutter-5bbf7",
+    "storage_bucket": "loja-flutter-5bbf7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:973125890900:android:0fbb896ac51e8949880ec1",
+        "android_client_info": {
+          "package_name": "com.matheusgeiser.lojaonline"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "973125890900-3msihcve3s9kampc3o3lj5gq73eenvae.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwiPMZiOV7qZMI_yPjsTLvTqw48lE_Yhw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "973125890900-3msihcve3s9kampc3o3lj5gq73eenvae.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
