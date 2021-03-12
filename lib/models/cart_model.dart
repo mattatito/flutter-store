@@ -26,24 +26,24 @@ class CartModel extends Model {
   void decProduct(CartProduct cartProduct) {
     cartProduct.quantity--;
     print(cartProduct.quantity);
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("users")
-        .document(user.firebaseUser.uid)
+        .doc(user.firebaseUser.uid)
         .collection("cart")
-        .document(cartProduct.cid)
-        .updateData(cartProduct.toMap());
+        .doc(cartProduct.cid)
+        .update(cartProduct.toMap());
     notifyListeners();
   }
 
   void incProduct(CartProduct cartProduct) {
     cartProduct.quantity++;
     print(cartProduct.quantity);
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("users")
-        .document(user.firebaseUser.uid)
+        .doc(user.firebaseUser.uid)
         .collection("cart")
-        .document(cartProduct.cid)
-        .updateData(cartProduct.toMap());
+        .doc(cartProduct.cid)
+        .update(cartProduct.toMap());
     notifyListeners();
   }
 
@@ -54,13 +54,13 @@ class CartModel extends Model {
 
   void addCartItem(CartProduct cartProduct) {
     products.add(cartProduct);
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("users")
-        .document(user.firebaseUser.uid)
+        .doc(user.firebaseUser.uid)
         .collection("cart")
         .add(cartProduct.toMap())
         .then((doc) {
-      cartProduct.cid = doc.documentID;
+      cartProduct.cid = doc.id;
     });
 
     notifyListeners();
@@ -97,20 +97,20 @@ class CartModel extends Model {
 
 
   void _loadCartItems() async {
-    QuerySnapshot querySnapshot = await Firestore.instance
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection("users")
-        .document(user.firebaseUser.uid).collection("cart").getDocuments();
+        .doc(user.firebaseUser.uid).collection("cart").get();
 
-    products = querySnapshot.documents.map((doc)=>CartProduct.fromDocument(doc)).toList();
+    products = querySnapshot.docs.map((doc)=>CartProduct.fromDocument(doc)).toList();
     notifyListeners();
   }
 
   void removeCartItem(CartProduct cartProduct) {
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("users")
-        .document(user.firebaseUser.uid)
+        .doc(user.firebaseUser.uid)
         .collection("cart")
-        .document(cartProduct.cid)
+        .doc(cartProduct.cid)
         .delete();
     products.remove(cartProduct);
     notifyListeners();

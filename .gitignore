@@ -29,6 +29,7 @@
 .pub-cache/
 .pub/
 /build/
+/web/scripts/firebaseConnection.js
 
 # Web related
 lib/generated_plugin_registrant.dart
