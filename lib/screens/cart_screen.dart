@@ -8,6 +8,8 @@ import 'package:lojaonline/widgets/descount_card.dart';
 import 'package:lojaonline/widgets/ship_card.dart';
 import 'package:scoped_model/scoped_model.dart';
 
+import 'order_screen.dart';
+
 class CartScreen extends StatefulWidget {
   @override
   _CartScreenState createState() => _CartScreenState();
@@ -44,18 +46,18 @@ class _CartScreenState extends State<CartScreen> {
             );
           } else if (!UserModel.of(context).isLoggedIn()) {
             return Container(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Icon(
                     Icons.remove_shopping_cart,
-                    size: 80,
+                    size: 80.0,
                     color: Theme.of(context).primaryColor,
                   ),
                   SizedBox(
-                    height: 16,
+                    height: 16.0,
                   ),
                   Text(
                     "Faça o login para adicionar produtos!",
@@ -63,12 +65,12 @@ class _CartScreenState extends State<CartScreen> {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(
-                    height: 16,
+                    height: 16.0,
                   ),
                   RaisedButton(
                     child: Text(
                       "Entrar",
-                      style: TextStyle(fontSize: 18),
+                      style: TextStyle(fontSize: 18.0),
                     ),
                     color: Theme.of(context).primaryColor,
                     onPressed: () => Navigator.of(context).push(
@@ -97,7 +99,16 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 DiscountCard(),
                 ShipCard(),
-                CartPrice((){})
+                CartPrice(() async{
+                  String orderId = await model.finishOrder();
+
+                  if(orderId != null){
+                    Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => OrderScreen(orderId))
+                    );
+                  }
+
+                })
 
               ],
             );
