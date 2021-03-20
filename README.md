@@ -30,7 +30,9 @@ My orders listing with real time status.
 ## What technologies does the application use?
 
 Firebase for user authentication and data persistance;
+
 Scoped model for data structure;
+
 Carousel for images from product.
 
 ## Contributing
