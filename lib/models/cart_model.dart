@@ -11,13 +11,9 @@ class CartModel extends Model {
   String couponCode;
   int discountPercentage = 0;
 
-  CartModel(this.user){
-    if(user.isLoggedIn())
-      _loadCartItems();
-
+  CartModel(this.user) {
+    if (user.isLoggedIn()) _loadCartItems();
   }
-
-
 
   static CartModel of(BuildContext context) =>
       ScopedModel.of<CartModel>(context);
@@ -25,92 +21,128 @@ class CartModel extends Model {
 
   void decProduct(CartProduct cartProduct) {
     cartProduct.quantity--;
-    print(cartProduct.quantity);
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("users")
-        .document(user.firebaseUser.uid)
+        .doc(user.firebaseUser.uid)
         .collection("cart")
-        .document(cartProduct.cid)
-        .updateData(cartProduct.toMap());
+        .doc(cartProduct.cid)
+        .update(cartProduct.toMap());
     notifyListeners();
   }
 
   void incProduct(CartProduct cartProduct) {
     cartProduct.quantity++;
-    print(cartProduct.quantity);
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("users")
-        .document(user.firebaseUser.uid)
+        .doc(user.firebaseUser.uid)
         .collection("cart")
-        .document(cartProduct.cid)
-        .updateData(cartProduct.toMap());
+        .doc(cartProduct.cid)
+        .update(cartProduct.toMap());
     notifyListeners();
   }
 
-  void setCoupon(String coupon, int discountPercentage){
+  void setCoupon(String coupon, int discountPercentage) {
     this.couponCode = coupon;
     this.discountPercentage = discountPercentage;
   }
 
   void addCartItem(CartProduct cartProduct) {
     products.add(cartProduct);
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("users")
-        .document(user.firebaseUser.uid)
+        .doc(user.firebaseUser.uid)
         .collection("cart")
         .add(cartProduct.toMap())
         .then((doc) {
-      cartProduct.cid = doc.documentID;
+      cartProduct.cid = doc.id;
     });
 
     notifyListeners();
   }
 
-  void finishOrder(){
-    if(products.length == 0) return;
+  Future<String> finishOrder() async {
+    if (products.length == 0) return null;
 
-    
+    isLoading = true;
+    notifyListeners();
 
+    double productsPrice = getProductsPrice();
+    double shipPrice = getShipPrice();
+    double discount = getDiscount();
+
+    DocumentReference refOrder =
+        await FirebaseFirestore.instance.collection("orders").add({
+      "clientId": user.firebaseUser.uid,
+      "products": products.map((cartModel) => cartModel.toMap()).toList(),
+      "shipPrice": shipPrice,
+      "productsPrice": productsPrice,
+      "discount": discount,
+      "totalPrice": productsPrice - discount + shipPrice,
+      "status": 1
+    });
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.firebaseUser.uid)
+        .collection("orders")
+        .doc(refOrder.id)
+        .set({"orderId": refOrder.id});
+
+    QuerySnapshot query = await FirebaseFirestore.instance.collection("users").doc(user.firebaseUser.uid).collection("cart").get();
+
+    for(DocumentSnapshot doc in query.docs){
+      doc.reference.delete();
+    }
+
+    products.clear();
+
+    couponCode = null;
+    discountPercentage = 0;
+
+    isLoading = false;
+    notifyListeners();
+
+    return refOrder.id;
   }
 
-  double getProductsPrice(){
+  double getProductsPrice() {
     double price = 0.0;
-    for(CartProduct c in products){
-      if(c.productData != null)
-        price+= c.quantity* c.productData.price;
+    for (CartProduct c in products) {
+      if (c.productData != null) price += c.quantity * c.productData.price;
     }
     return price;
-
   }
-  void updatePrices(){
+
+  void updatePrices() {
     notifyListeners();
   }
 
-  double getDiscount(){
+  double getDiscount() {
     return getProductsPrice() * discountPercentage / 100;
   }
 
-  double getShipPrice(){
+  double getShipPrice() {
     return 9.99;
   }
 
-
-
   void _loadCartItems() async {
-    QuerySnapshot querySnapshot = await Firestore.instance
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection("users")
-        .document(user.firebaseUser.uid).collection("cart").getDocuments();
+        .doc(user.firebaseUser.uid)
+        .collection("cart")
+        .get();
 
-    products = querySnapshot.documents.map((doc)=>CartProduct.fromDocument(doc)).toList();
+    products =
+        querySnapshot.docs.map((doc) => CartProduct.fromDocument(doc)).toList();
     notifyListeners();
   }
 
   void removeCartItem(CartProduct cartProduct) {
-    Firestore.instance
+    FirebaseFirestore.instance
         .collection("users")
-        .document(user.firebaseUser.uid)
+        .doc(user.firebaseUser.uid)
         .collection("cart")
-        .document(cartProduct.cid)
+        .doc(cartProduct.cid)
         .delete();
     products.remove(cartProduct);
     notifyListeners();

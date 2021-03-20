@@ -36,8 +36,8 @@ class HomeTab extends StatelessWidget {
               ),
             ),
             FutureBuilder<QuerySnapshot>(
-              future: Firestore.instance
-              .collection("home").orderBy("pos").getDocuments(),
+              future: FirebaseFirestore.instance
+              .collection("home").orderBy("pos").get(),
               builder: (context, snapshot){
                 if(!snapshot.hasData){
                   return SliverToBoxAdapter(
@@ -54,14 +54,14 @@ class HomeTab extends StatelessWidget {
                     crossAxisCount: 2,
                     mainAxisSpacing: 1.0,
                     crossAxisSpacing: 1.0,
-                    staggeredTiles: snapshot.data.documents.map((doc){
-                      return StaggeredTile.count(doc.data["x"], doc.data["y"]);
+                    staggeredTiles: snapshot.data.docs.map((doc){
+                      return StaggeredTile.count(doc.data()["x"], doc.data()["y"]);
                     }).toList(),
-                    children: snapshot.data.documents.map(
+                    children: snapshot.data.docs.map(
                             (doc){
                       return FadeInImage.memoryNetwork(
                           placeholder: kTransparentImage,
-                          image: doc.data["image"],
+                          image: doc.data()["image"],
                         fit: BoxFit.cover,
                       );
                     }).toList(),

@@ -26,15 +26,15 @@ class DiscountCard extends StatelessWidget {
               ),
               initialValue: CartModel.of(context).couponCode ?? "",
               onFieldSubmitted: (text){
-                Firestore.instance.collection("coupons").document(text).get().then((docSnap){
+                FirebaseFirestore.instance.collection("coupons").doc(text).get().then((docSnap){
                   if(docSnap.data != null){
-                    CartModel.of(context).setCoupon(text, docSnap.data["percent"]);
-                    Scaffold.of(context).showSnackBar(
-                      SnackBar(content: Text("Desconto de ${docSnap.data["percent"]}% aplicado!"),backgroundColor: Theme.of(context).primaryColor,)
+                    CartModel.of(context).setCoupon(text, docSnap.data()["percent"]);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Desconto de ${docSnap.data()["percent"]}% aplicado!"),backgroundColor: Theme.of(context).primaryColor,)
                     );
                   }else{
                     CartModel.of(context).setCoupon(null, 0);
-                    Scaffold.of(context).showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Cupom inválido!"),backgroundColor: Colors.redAccent,)
                     );
                   }
